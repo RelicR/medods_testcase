@@ -1,0 +1,203 @@
+basePath: /
+definitions:
+  handlers.ErrorResponse:
+    properties:
+      message:
+        example: Переданы некорректные данные
+        type: string
+    type: object
+  handlers.GuidResponse:
+    properties:
+      guid:
+        example: 01ecfeac-5006-4af3-8961-fb5d3d7b142f
+        type: string
+      message:
+        example: GUID получен
+        type: string
+    type: object
+  handlers.MessageResponse:
+    properties:
+      message:
+        example: Успешный выход из аккаунта
+        type: string
+    type: object
+  handlers.Payload:
+    properties:
+      event:
+        example: 111
+        type: integer
+      guid:
+        example: 01ecfeac-5006-4af3-8961-fb5d3d7b142f
+        type: string
+      info:
+        example: 192.168.0.1
+        type: string
+    type: object
+  handlers.TokensRequest:
+    properties:
+      access_token:
+        example: MDE5N2VhZGQtZGQxMC03MDE4LTg4ZWYtODc5N2EzNGIxMjk3
+        type: string
+      refresh_token:
+        example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJmaW5nZXJwcmludCI6IlBvc3RtYW5SdW50aW1lLzcuNDQuMSIsImlwIjoiMTcyLjE4LjAuMTo0NDU2OCIsIlBhaXJJZCI6IklFbjdHZEZ2dm1BNXo3M3giLCJpc3MiOiJhdXRoLmxvY2FsaG9zdDo4MDgwIiwic3ViIjoiMDFlY2ZlYWMtNTAwNi00YWYzLTg5NjEtZmI1ZDNkN2IxNDJmIiwiYXVkIjpbImxvY2FsaG9zdDo4MDgwIl0sImV4cCI6MTc1MTk5Mzg5OCwiaWF0IjoxNzUxOTkyMDk4fQ.veQb44AcPIr1J0oxvhyaaCbrzo6gV-sMLM1xtRJDN_p3tOfR-lSwJTR8K5oqL-CbfJ9j_OTFkpHlEUeN3eFmVA
+        type: string
+    type: object
+  handlers.TokensResponse:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJmaW5nZXJwcmludCI6IlBvc3RtYW5SdW50aW1lLzcuNDQuMSIsImlwIjoiMTcyLjE4LjAuMTo0NDU2OCIsIlBhaXJJZCI6IkZyRW5fX0o4UTlSc1djcVUiLCJpc3MiOiJhdXRoLmxvY2FsaG9zdDo4MDgwIiwic3ViIjoiMDFlY2ZlYWMtNTAwNi00YWYzLTg5NjEtZmI1ZDNkN2IxNDJmIiwiYXVkIjpbImxvY2FsaG9zdDo4MDgwIl0sImV4cCI6MTc1MTk5MzkwOCwiaWF0IjoxNzUxOTkyMTA4fQ.YA-Cp0iNzeWwX4Z7zRllpq8tIOpE5KIJWuFpU5u49sRtPdHkLFGLAul744APJe5UZ0fnUuc8yfWpCLiNRCtogw
+        type: string
+      message:
+        example: Токены обновлены
+        type: string
+      refresh_token:
+        example: MDE5N2VhZGUtMDQ3NC03MDE4LWJlMmYtMGUxMzliMTY0M2Ex
+        type: string
+    type: object
+  handlers.WebhookResponse:
+    properties:
+      status:
+        example: ok
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: API server for auth tokens
+  title: Тестовое задание для API сервиса аутентификации
+  version: "1.0"
+paths:
+  /api/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Деавторизация пользователя
+      operationId: log-out
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.MessageResponse'
+      summary: LogOut
+      tags:
+      - auth
+  /api/auth/tokens:
+    get:
+      consumes:
+      - application/json
+      description: Получение пары токенов для указанного GUID
+      operationId: get-tokens
+      parameters:
+      - description: user guid
+        example: 01ecfeac-5006-4af3-8961-fb5d3d7b142f
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.TokensResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: GetTokens
+      tags:
+      - auth
+  /api/auth/tokens/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Обновление токенов
+      operationId: refresh-tokens
+      parameters:
+      - description: user tokens
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TokensRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.TokensResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - ApiTokenAuth: []
+      summary: RefreshTokens
+      tags:
+      - auth
+  /api/auth/user:
+    get:
+      consumes:
+      - application/json
+      description: Получение GUID пользователя
+      operationId: get-guid
+      parameters:
+      - description: user tokens
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TokensRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GuidResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - ApiTokenAuth: []
+      summary: GetGuid
+      tags:
+      - auth
+  /webhook:
+    post:
+      consumes:
+      - application/json
+      description: Пример обработки вебхука
+      operationId: webhook
+      parameters:
+      - description: user guid
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.Payload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: status
+          schema:
+            $ref: '#/definitions/handlers.WebhookResponse'
+        default:
+          description: status
+          schema:
+            $ref: '#/definitions/handlers.WebhookResponse'
+      summary: Webhook
+      tags:
+      - utils
+securityDefinitions:
+  ApiTokenAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
